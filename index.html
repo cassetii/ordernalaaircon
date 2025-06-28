@@ -1,7 +1,7 @@
 <div class="form-grid">
                                 <div class="form-group">
                                     <label>Brand AC *</label>
-                                    <select name="acBrand_1" required>
+                                    <select class="ac-brand" data-unit="1" required>
                                         <option value="">Pilih Brand AC</option>
                                         <option value="Daikin">Daikin</option>
                                         <option value="LG">LG</option>
@@ -20,7 +20,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Type AC *</label>
-                                    <select name="acType_1" required>
+                                    <select class="ac-type" data-unit="1" required>
                                         <option value="">Pilih Type AC</option>
                                         <option value="Split Wall">Split Wall</option>
                                         <option value="Split Floor Standing">Split Floor Standing</option>
@@ -33,7 +33,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Kapasitas PK *</label>
-                                    <select name="pkType_1" required>
+                                    <select class="ac-pk" data-unit="1" required>
                                         <option value="">Pilih Kapasitas PK</option>
                                         <option value="0.5 PK">0.5 PK</option>
                                         <option value="0.75 PK">0.75 PK</option>
@@ -48,7 +48,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Type Freon</label>
-                                    <select name="freonType_1">
+                                    <select class="ac-freon" data-unit="1">
                                         <option value="">Pilih Type Freon</option>
                                         <option value="R22">R22</option>
                                         <option value="R32">R32</option>
@@ -59,11 +59,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Lokasi Penempatan *</label>
-                                    <input type="text" name="acLocation_1" placeholder="Contoh: Ruang Tamu, Kamar Utama" required>
+                                    <input type="text" class="ac-location" data-unit="1" placeholder="Contoh: Ruang Tamu, Kamar Utama" required>
                                 </div>
                                 <div class="form-group">
                                     <label>Kondisi AC Saat Ini</label>
-                                    <select name="acCondition_1">
+                                    <select class="ac-condition" data-unit="1">
                                         <option value="">Pilih Kondisi</option>
                                         <option value="Baik">Baik</option>
                                         <option value="Tidak Dingin">Tidak Dingin</option>
@@ -368,30 +368,194 @@
             showStep(currentStep);
         };
 
-        // Validate current step
+        // Validate current step - IMPROVED VERSION
         function validateStep(step) {
             switch(step) {
                 case 1:
                     if (selectedServices.length === 0) {
-                        showToast('Pilih minimal satu layanan!', 'error');
+                        showToast('❌ Pilih minimal satu layanan AC!\n\nSilakan pilih layanan yang Anda butuhkan dari daftar di atas.', 'error');
                         return false;
                     }
                     return true;
                     
                 case 2:
+                    console.log('🔍 Validating Step 2 - AC Units');
                     const units = document.querySelectorAll('.unit-selector');
+                    console.log(`Found ${units.length} AC units to validate`);
+                    
                     for (let i = 0; i < units.length; i++) {
                         const unit = units[i];
-                        const unitNum = unit.getAttribute('data-unit');
+                        const unitNumber = i + 1;
                         
-                        const brandSelect = unit.querySelector(`select[name="acBrand_${unitNum}"]`);
-                        const typeSelect = unit.querySelector(`select[name="acType_${unitNum}"]`);
-                        const pkSelect = unit.querySelector(`select[name="pkType_${unitNum}"]`);
-                        const locationInput = unit.querySelector(`input[name="acLocation_${unitNum}"]`);
+                        console.log(`Validating Unit AC ${unitNumber}`);
                         
+                        // Get form elements using class selectors (more reliable)
+                        const brandSelect = unit.querySelector('.ac-brand');
+                        const typeSelect = unit.querySelector('.ac-type');
+                        const pkSelect = unit.querySelector('.ac-pk');
+                        const locationInput = unit.querySelector('.ac-location');
+                        
+                        // Check if elements exist
                         if (!brandSelect || !typeSelect || !pkSelect || !locationInput) {
-                            console.error(`Missing form elements for unit ${unitNum}`);
-                            showToast(`Error: Form tidak lengkap untuk Unit AC ${unitNum}`, 'error');
+                            console.error(`❌ Missing form elements for Unit AC ${unitNumber}`);
+                            showToast(`❌ Terjadi kesalahan pada form Unit AC ${unitNumber}\n\nSilakan refresh halaman dan coba lagi.`, 'error');
+                            return false;
+                        }
+                        
+                        // Get values
+                        const brand = brandSelect.value.trim();
+                        const type = typeSelect.value.trim();
+                        const pk = pkSelect.value.trim();
+                        const location = locationInput.value.trim();
+                        
+                        console.log(`Unit ${unitNumber} values:`, { brand, type, pk, location });
+                        
+                        // Check required fields
+                        const missingFields = [];
+                        
+                        if (!brand) {
+                            missingFields.push('Brand AC');
+                            brandSelect.style.borderColor = '#f44336';
+                            brandSelect.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.3)';
+                        } else {
+                            brandSelect.style.borderColor = '#4CAF50';
+                            brandSelect.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.2)';
+                        }
+                        
+                        if (!type) {
+                            missingFields.push('Type AC');
+                            typeSelect.style.borderColor = '#f44336';
+                            typeSelect.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.3)';
+                        } else {
+                            typeSelect.style.borderColor = '#4CAF50';
+                            typeSelect.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.2)';
+                        }
+                        
+                        if (!pk) {
+                            missingFields.push('Kapasitas PK');
+                            pkSelect.style.borderColor = '#f44336';
+                            pkSelect.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.3)';
+                        } else {
+                            pkSelect.style.borderColor = '#4CAF50';
+                            pkSelect.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.2)';
+                        }
+                        
+                        if (!location) {
+                            missingFields.push('Lokasi Penempatan');
+                            locationInput.style.borderColor = '#f44336';
+                            locationInput.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.3)';
+                        } else {
+                            locationInput.style.borderColor = '#4CAF50';
+                            locationInput.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.2)';
+                        }
+                        
+                        if (missingFields.length > 0) {
+                            console.log(`❌ Unit ${unitNumber} missing fields:`, missingFields);
+                            
+                            // Scroll to the problematic unit
+                            unit.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center',
+                                inline: 'nearest'
+                            });
+                            
+                            // Show detailed error message
+                            showToast(
+                                `❌ Unit AC ${unitNumber} belum lengkap!\n\n` +
+                                `Data yang belum diisi:\n` +
+                                missingFields.map(field => `• ${field}`).join('\n') +
+                                `\n\nSilakan lengkapi data terlebih dahulu.`,
+                                'error'
+                            );
+                            
+                            return false;
+                        }
+                        
+                        console.log(`✅ Unit AC ${unitNumber} validation passed`);
+                        
+                        // Reset successful fields to normal border
+                        setTimeout(() => {
+                            [brandSelect, typeSelect, pkSelect, locationInput].forEach(el => {
+                                el.style.borderColor = '';
+                                el.style.boxShadow = '';
+                            });
+                        }, 2000);
+                    }
+                    
+                    console.log('✅ All AC units validation passed');
+                    showToast('✅ Data AC unit valid! Lanjut ke data customer...', 'success');
+                    return true;
+                    
+                case 3:
+                    const requiredFields = [
+                        { id: 'customerName', label: 'Nama Lengkap' },
+                        { id: 'customerPhone', label: 'No. Telepon/WhatsApp' },
+                        { id: 'customerAddress', label: 'Alamat Lengkap' },
+                        { id: 'preferredDate', label: 'Tanggal Service' },
+                        { id: 'preferredTime', label: 'Waktu Service' }
+                    ];
+                    
+                    const missingFields = [];
+                    
+                    requiredFields.forEach(field => {
+                        const element = document.getElementById(field.id);
+                        const value = element.value.trim();
+                        
+                        if (!value) {
+                            missingFields.push(field.label);
+                            element.style.borderColor = '#f44336';
+                            element.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.3)';
+                        } else {
+                            element.style.borderColor = '#4CAF50';
+                            element.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.2)';
+                        }
+                    });
+                    
+                    if (missingFields.length > 0) {
+                        showToast(
+                            `❌ Data customer belum lengkap!\n\n` +
+                            `Yang belum diisi:\n` +
+                            missingFields.map(field => `• ${field}`).join('\n'),
+                            'error'
+                        );
+                        return false;
+                    }
+                    
+                    // Validate phone number format
+                    const phone = document.getElementById('customerPhone').value.trim();
+                    const phoneRegex = /^(\+62|62|0)[0-9]{9,13}$/;
+                    const cleanPhone = phone.replace(/[\s-]/g, ''); // Remove spaces and dashes
+                    
+                    if (!phoneRegex.test(cleanPhone)) {
+                        showToast(
+                            '❌ Format nomor telepon tidak valid!\n\n' +
+                            'Format yang benar:\n' +
+                            '• 081234567890\n' +
+                            '• +6281234567890\n' +
+                            '• 6281234567890',
+                            'error'
+                        );
+                        document.getElementById('customerPhone').style.borderColor = '#f44336';
+                        document.getElementById('customerPhone').style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.3)';
+                        return false;
+                    }
+                    
+                    // Reset successful fields
+                    setTimeout(() => {
+                        requiredFields.forEach(field => {
+                            const element = document.getElementById(field.id);
+                            element.style.borderColor = '';
+                            element.style.boxShadow = '';
+                        });
+                    }, 2000);
+                    
+                    showToast('✅ Data customer valid! Lanjut ke konfirmasi...', 'success');
+                    return true;
+                    
+                default:
+                    return true;
+            }
+        } 'error');
                             return false;
                         }
                         
@@ -508,7 +672,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Brand AC *</label>
-                        <select name="acBrand_${acUnitCount}" required>
+                        <select class="ac-brand" data-unit="${acUnitCount}" required>
                             <option value="">Pilih Brand AC</option>
                             <option value="Daikin">Daikin</option>
                             <option value="LG">LG</option>
@@ -527,7 +691,7 @@
                     </div>
                     <div class="form-group">
                         <label>Type AC *</label>
-                        <select name="acType_${acUnitCount}" required>
+                        <select class="ac-type" data-unit="${acUnitCount}" required>
                             <option value="">Pilih Type AC</option>
                             <option value="Split Wall">Split Wall</option>
                             <option value="Split Floor Standing">Split Floor Standing</option>
@@ -540,7 +704,7 @@
                     </div>
                     <div class="form-group">
                         <label>Kapasitas PK *</label>
-                        <select name="pkType_${acUnitCount}" required>
+                        <select class="ac-pk" data-unit="${acUnitCount}" required>
                             <option value="">Pilih Kapasitas PK</option>
                             <option value="0.5 PK">0.5 PK</option>
                             <option value="0.75 PK">0.75 PK</option>
@@ -555,7 +719,7 @@
                     </div>
                     <div class="form-group">
                         <label>Type Freon</label>
-                        <select name="freonType_${acUnitCount}">
+                        <select class="ac-freon" data-unit="${acUnitCount}">
                             <option value="">Pilih Type Freon</option>
                             <option value="R22">R22</option>
                             <option value="R32">R32</option>
@@ -566,11 +730,11 @@
                     </div>
                     <div class="form-group">
                         <label>Lokasi Penempatan *</label>
-                        <input type="text" name="acLocation_${acUnitCount}" placeholder="Contoh: Ruang Tamu, Kamar Utama" required>
+                        <input type="text" class="ac-location" data-unit="${acUnitCount}" placeholder="Contoh: Ruang Tamu, Kamar Utama" required>
                     </div>
                     <div class="form-group">
                         <label>Kondisi AC Saat Ini</label>
-                        <select name="acCondition_${acUnitCount}">
+                        <select class="ac-condition" data-unit="${acUnitCount}">
                             <option value="">Pilih Kondisi</option>
                             <option value="Baik">Baik</option>
                             <option value="Tidak Dingin">Tidak Dingin</option>
@@ -664,22 +828,48 @@
                 `;
             });
             
-            // AC Units
-            summaryHTML += `<div style="margin: 20px 0; padding: 10px 0; border-top: 2px solid rgba(46, 125, 50, 0.2);"><strong>🏠 Unit AC:</strong></div>`;
-            const units = document.querySelectorAll('.unit-selector');
+            // AC Units - IMPROVED VERSION
+            summaryHTML += `<div style="margin: 20px 0; padding: 10px 0; border-top: 2px solid rgba(46, 125, 50, 0.2);"><strong>🏠 Unit AC (${units.length} unit):</strong></div>`;
             units.forEach((unit, index) => {
-                const unitNum = unit.getAttribute('data-unit');
-                const brand = unit.querySelector(`select[name="acBrand_${unitNum}"]`).value;
-                const type = unit.querySelector(`select[name="acType_${unitNum}"]`).value;
-                const pk = unit.querySelector(`select[name="pkType_${unitNum}"]`).value;
-                const location = unit.querySelector(`input[name="acLocation_${unitNum}"]`).value;
+                const unitNumber = index + 1;
                 
-                summaryHTML += `
-                    <div class="summary-item">
-                        <span>AC ${index + 1}: ${brand} ${type} ${pk}</span>
-                        <span>${location}</span>
-                    </div>
-                `;
+                // Use class selectors for consistent data retrieval
+                const brandSelect = unit.querySelector('.ac-brand');
+                const typeSelect = unit.querySelector('.ac-type');
+                const pkSelect = unit.querySelector('.ac-pk');
+                const freonSelect = unit.querySelector('.ac-freon');
+                const locationInput = unit.querySelector('.ac-location');
+                const conditionSelect = unit.querySelector('.ac-condition');
+                
+                if (brandSelect && typeSelect && pkSelect && locationInput) {
+                    const brand = brandSelect.value || 'Tidak diisi';
+                    const type = typeSelect.value || 'Tidak diisi';
+                    const pk = pkSelect.value || 'Tidak diisi';
+                    const freon = freonSelect ? freonSelect.value || 'Tidak diisi' : 'Tidak diisi';
+                    const location = locationInput.value || 'Tidak diisi';
+                    const condition = conditionSelect ? conditionSelect.value || 'Tidak diisi' : 'Tidak diisi';
+                    
+                    summaryHTML += `
+                        <div class="summary-item" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                            <div style="width: 100%; display: flex; justify-content: space-between;">
+                                <span><strong>AC ${unitNumber}:</strong> ${brand} ${type} ${pk}</span>
+                                <span>${location}</span>
+                            </div>
+                            <div style="width: 100%; display: flex; justify-content: space-between; font-size: 12px; color: #666;">
+                                <span>Freon: ${freon}</span>
+                                <span>Kondisi: ${condition}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    console.error(`Missing elements for unit ${unitNumber} in summary`);
+                    summaryHTML += `
+                        <div class="summary-item">
+                            <span>AC ${unitNumber}:</span>
+                            <span style="color: #f44336;">Data tidak lengkap</span>
+                        </div>
+                    `;
+                }
             });
             
             // Total
@@ -750,20 +940,37 @@
             loading.classList.add('show');
             
             try {
-                // Collect AC units data
+                // Collect AC units data - IMPROVED VERSION
                 const acUnits = [];
                 const units = document.querySelectorAll('.unit-selector');
                 
-                units.forEach(unit => {
-                    const unitNum = unit.getAttribute('data-unit');
-                    acUnits.push({
-                        brand: unit.querySelector(`select[name="acBrand_${unitNum}"]`).value,
-                        type: unit.querySelector(`select[name="acType_${unitNum}"]`).value,
-                        pk: unit.querySelector(`select[name="pkType_${unitNum}"]`).value,
-                        freon: unit.querySelector(`select[name="freonType_${unitNum}"]`).value,
-                        location: unit.querySelector(`input[name="acLocation_${unitNum}"]`).value,
-                        condition: unit.querySelector(`select[name="acCondition_${unitNum}"]`).value
-                    });
+                units.forEach((unit, index) => {
+                    const unitNumber = index + 1;
+                    console.log(`Collecting data for Unit AC ${unitNumber}`);
+                    
+                    // Use class selectors for more reliable element finding
+                    const brandSelect = unit.querySelector('.ac-brand');
+                    const typeSelect = unit.querySelector('.ac-type');
+                    const pkSelect = unit.querySelector('.ac-pk');
+                    const freonSelect = unit.querySelector('.ac-freon');
+                    const locationInput = unit.querySelector('.ac-location');
+                    const conditionSelect = unit.querySelector('.ac-condition');
+                    
+                    if (brandSelect && typeSelect && pkSelect && locationInput) {
+                        const unitData = {
+                            brand: brandSelect.value || '',
+                            type: typeSelect.value || '',
+                            pk: pkSelect.value || '',
+                            freon: freonSelect ? freonSelect.value || '' : '',
+                            location: locationInput.value || '',
+                            condition: conditionSelect ? conditionSelect.value || '' : ''
+                        };
+                        
+                        console.log(`Unit ${unitNumber} data:`, unitData);
+                        acUnits.push(unitData);
+                    } else {
+                        console.error(`Missing elements in Unit AC ${unitNumber}`);
+                    }
                 });
 
                 // Prepare order data
